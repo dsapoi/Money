@@ -1,0 +1,400 @@
+<!--宣告成HTML5-->
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+  <meta charset="utf-8">
+    -->
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <!--
+  
+    width：可設定數值，或者指定為 device-width
+    height：可設定數值，或者指定為 device-height
+    initial-scale：第一次進入頁面的初始比例
+    minimum-scale：允許縮小最小比例
+    maximum-scale：允許放大最大比例
+    user-scalable：允許使用者縮放，1 or 0 (yes or no)
+
+  -->
+  <!--設定網頁大小裝置的100%,不允許使用者縮放-->
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <!--讓電話號碼有作用-->
+  <meta name="format-detection" content="telephone=yes">
+  <!--使用者將網頁加入主畫面時，可以將最上的狀態列隱藏-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!--使用者將網頁加入主畫面時，可以將最上的狀態列設定為其他顏色(發覺只能設定為黑色)-->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+  <title>
+      記帳
+      
+  </title>
+  
+  <!--pickadate-->
+  <link rel="stylesheet" href="plugin/pickadate/css/main.css">
+  <link rel="stylesheet" href="plugin/pickadate/css/default.css" id="theme_base">
+  <link rel="stylesheet" href="plugin/pickadate/css/default.date.css" id="theme_date">
+  <link rel="stylesheet" href="plugin/pickadate/css/default.time.css" id="theme_time">
+  
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css">
+  <!-- Extra Codiqa features -->
+  <link rel="stylesheet" href="codiqa.ext.css">     
+  
+  <style>
+   .header-navbar {
+    border: none;
+    border-bottom: 1px solid #000;
+    background: #2D2D2D;
+}
+
+    .header-navbar a.ui-btn {
+        border: none;
+        background: inherit;
+        text-shadow: none;
+        color: #BBB;
+
+    }
+
+    .header-navbar .ui-btn-inner {
+        padding: 0 !important;
+        height: 29px;
+        line-height: 29px;
+    }
+
+    .header-navbar a.ui-btn.ui-btn-active,.header-navbar a.ui-btn:hover{
+        color: #FFF;
+    }
+   </style>
+
+  <!-- jQuery and jQuery Mobile -->
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>  
+
+  <!-- Extra Codiqa features -->
+    <script src="https://d10ajoocuyu32n.cloudfront.net/codiqa.ext.js"></script>
+    <script src="plugin/pickadate/js/picker.js"></script>
+    <script src="plugin/pickadate/js/picker.date.js"></script>
+    <script src="plugin/pickadate/js/picker.time.js"></script>
+    <script src="plugin/pickadate/js/legacy.js"></script>
+    <script src="plugin/pickadate/js/main.js"></script>
+    <script type="text/javascript">                  
+        
+        var checksys=0;
+        $(function() {
+            //取得類別
+             getcost_kind();
+            $('.datepicker').pickadate({
+            // Escape any 「rule」 characters with an exclamation mark (!).
+            format: 'yyyy-mm-dd'                        
+         })
+          $('.datepicker').pickadate();          
+          
+        
+          $("#un").attr("disabled",true)
+          $("#un").val(localStorage.userid);
+          //系統管理者專用                    
+          $("#sys").click(function(){                           
+                           ex();                            
+          })
+          
+          //login裡清除userid
+          $("#logout").click(function(){
+              delete  localStorage.userid;
+               $("#un").val("");
+               //
+               //應該還要把db刪掉吧??? 還是不理他阿???
+               clean();
+               
+          })
+          $("#login").click(function(){                            
+              if($("#un").val()==""){
+                  //直接自動取號
+                  userid();                  
+              }else{                  
+                  localStorage.userid=$("#un").val();          
+                  clean();
+              }
+              $("#un").val(localStorage.userid);
+              
+          })
+          
+          // 設置 username 為 Kayo
+          //localStorage.username = 'Kayo'; 
+          //sessionStorage.username = 'dsapoi'; 
+          // 訪問 username 並把其鍵值存儲在一個變量 username 中
+//          var username = localStorage.userid; 
+
+    
+        });
+        
+       function ex(){
+           checksys++;
+           if(checksys>10){
+               alert("解鎖成功")
+               $("#un").attr("disabled",false)
+               
+           }
+           
+           
+       }
+      
+        function syncuser(){                            
+                $("#un").val(localStorage.userid);                      
+                
+        }
+        
+        function userid(){            
+            
+            $.ajax({
+                url: "../rest/userid",
+                type: "GET",
+                datatype:"json",
+                cache : "false", 
+                success: function(msg){
+                      //alert( "Data Saved: " + msg );                      
+	              $.each(msg, function (i, item) {
+                        //alert(item.code_desc)                        
+                        localStorage.userid =item.userid;
+                        $("#un").val(localStorage.userid);
+	               });
+                       
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   alert("some error");
+                }
+              });
+            //$("#cost_kind").listview('refresh');
+        }
+        
+        
+        function getcost_kind(){
+            
+            $.ajax({
+                url: "../rest/cost_kind",
+                type: "GET",
+                datatype:"json",
+                cache : "false", 
+                success: function(msg){
+                      //alert( "Data Saved: " + msg );                      
+	              $.each(msg, function (i, item) {
+                        //alert(item.code_desc)
+                        
+                        if(item.code_no.length ==2){
+                            $("#cost_kind").append('<optgroup label="' + item.code_desc +'" id="kind'+item.code_no+'"></optgroup>'); 
+                        }
+                        else{                            
+                            $("#kind"+(item.code_no).substr(0,2)).append('<option value="'+item.code_no+'">'+item.code_desc+'</option>')                                                       
+                        }
+	               });
+                       
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   alert("some error");
+                }
+              });
+            //$("#cost_kind").listview('refresh');
+        }
+        function getUsers(){
+            
+            $.ajax({
+                url: "http://192.168.2.96:8888/rest/users",
+                type: "GET",
+                datatype:"json",
+                success: function(msg){
+                      //alert( "Data Saved: " + msg );                      
+	              $.each(msg, function (i, item) {
+                        alert(item.user_email)
+	               });
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   alert("some error");
+                }
+              });
+            
+        }
+        
+        
+        function insertData(){
+            
+            var tmp_cost_kind = $("#cost_kind").val();            
+            var tmp_cost_date = $("#cost_date").val();           
+            var tmp_cost = $("#cost").val();
+            var tmp_ps = $("#ps").val();
+            var tmp_userid = localStorage.userid;
+            
+            if($("#un").val()==""){                
+                setTimeout(function () {
+                    $('#popupLogin').popup('open');
+                }, 100); // delay above zero                
+            }
+            else{
+                
+             $.ajax({
+                url: "http://59.126.156.231:8888/rest/insertData",
+                type: "post",                                
+                data: {tmp_cost_kind:tmp_cost_kind, tmp_cost_date: tmp_cost_date,tmp_cost:tmp_cost,tmp_ps:tmp_ps,tmp_userid:tmp_userid},
+                success: function(msg){                                       
+                    clean();
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   alert("some error");
+                }
+              });
+        }
+        
+        }
+        
+        function clean(){                 
+         //window.location.reload();       
+         window.location="http://59.126.156.231:8888/Money/index.html";
+        }
+            
+        
+        
+        
+        
+    </script>
+    
+    
+</head>
+<body>
+<!-- Home -->
+<div data-role="page" id="page1">
+    <div data-theme="a" data-role="header">
+        <a href="#popupLogin" data-rel="popup" data-position-to="window" data-role="button" data-inline="true"  data-theme="a" data-transition="flip" onclick="syncuser()">登入</a>
+        <h3>
+            記帳
+        </h3>
+         <div data-role="navbar" data-iconpos="top"   class="header-navbar">
+            <ul>
+                <li>
+                    <a href="#page1" data-transition="fade" data-theme="" data-icon="">
+                        記帳
+                    </a>
+                </li>
+                <li>
+                    <a href="#page2" data-transition="fade" data-theme="" data-icon="">
+                        月清單
+                    </a>
+                </li>
+                <li>
+                    <a href="#page3" data-transition="fade" data-theme="" data-icon="">
+                        分類
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div data-role="content">
+        
+        
+        
+    <div data-role="fieldcontain" >
+        <label for="textinput1">
+            類別
+        </label>
+        <select id="cost_kind"></select>
+    </div>
+        
+        
+        <div data-role="fieldcontain">
+            <label for="textinput1">
+                日期
+            </label>
+			<!--
+            <input name="" class="fieldset__input js__datepicker" id="textinput1" placeholder="" value="" type="text">
+			-->
+			
+            <input name="" id="cost_date" class="datepicker" placeholder="" value="" type="text">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="textinput2">
+                金額
+            </label>
+            <input name="" id="cost" placeholder="" value="" type="number">
+        </div>
+        <div data-role="fieldcontain">
+            <label for="textarea2">
+                備註
+            </label>
+            <textarea name="" id="ps" placeholder=""></textarea>
+        </div>
+        <a data-role="button" href="#page1" id="insert" onclick="insertData()">
+            新增
+        </a>
+        <a data-role="button" onclick="clean()">
+            清除
+        </a>
+        
+        
+        
+
+        <div data-role="popup" id="popupLogin" data-theme="a" class="ui-corner-all">
+                <form>
+                        <div style="padding:10px 20px;">
+                            <span id ="sys"><h3>使用者代碼</h3></span>
+                  <label for="un" class="ui-hidden-accessible">Userid:</label>
+                  <input type="text" name="user" id="un" value="" placeholder="系統取號，點登入即可" data-theme="a" />
+                   <!--
+                  <label for="pw" class="ui-hidden-accessible">Password:</label>
+                  <input type="password" name="pass" id="pw" value="" placeholder="password" data-theme="a" />
+                   -->
+                  <button type="submit" data-theme="b" id="login">登入</button>
+                  <button type="submit" data-theme="b" id="logout">登出</button>
+                        </div>
+                </form>
+        </div>
+    
+    </div>
+    <!--
+    <video width="100%" controls>
+    <source src="rain.mp4" type="video/mp4">
+    
+    </source>
+    </video>
+    -->
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>
+        </h3>
+    </div>
+</div>
+
+
+<!--
+<div data-role="page" id="page2">
+            <div data-theme="a" data-role="header">
+        <h3>
+            記帳
+        </h3>
+         <div data-role="navbar" data-iconpos="top"   class="header-navbar">
+            <ul>
+                <li>
+                    <a href="#page1" data-transition="fade" data-theme="" data-icon="">
+                        記帳
+                    </a>
+                </li>
+                <li>
+                    <a href="#page2" data-transition="fade" data-theme="" data-icon="">
+                        月清單
+                    </a>
+                </li>
+                <li>
+                    <a href="#page3" data-transition="fade" data-theme="" data-icon="">
+                        分類
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div data-role="content">
+        </div>
+            <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>
+        </h3>
+    </div>
+        </div>
+-->
+    
+</body>
+</html>
