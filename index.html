@@ -1,3 +1,4 @@
+
 <!--宣告成HTML5-->
 <!DOCTYPE html>
 <html>
@@ -78,10 +79,13 @@
     <script src="plugin/pickadate/js/picker.time.js"></script>
     <script src="plugin/pickadate/js/legacy.js"></script>
     <script src="plugin/pickadate/js/main.js"></script>
+    <script src="plugin/pickadate/js/zh-tw.js"></script>
     <script type="text/javascript">                  
         
         var checksys=0;
         $(function() {
+            
+            
             //取得類別
              getcost_kind();
             $('.datepicker').pickadate({
@@ -124,7 +128,9 @@
           //sessionStorage.username = 'dsapoi'; 
           // 訪問 username 並把其鍵值存儲在一個變量 username 中
 //          var username = localStorage.userid; 
-
+        
+        list();
+        //$("#ttbody").html()
     
         });
         
@@ -158,6 +164,28 @@
                         localStorage.userid =item.userid;
                         $("#un").val(localStorage.userid);
 	               });
+                       
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                   alert("some error");
+                }
+              });
+            //$("#cost_kind").listview('refresh');
+        }
+        function list(){            
+             
+            var tmp_userid = localStorage.userid;
+            
+            $.ajax({
+                url: "../rest/lists",
+                type: "GET",
+                datatype:"html",
+                data:{tmp_userid:tmp_userid},
+                //cache : "false", 
+                success: function(msg){
+                      $("#ttbody").html(msg)
+                        //$("#un").val(localStorage.userid);
+	               
                        
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -236,6 +264,7 @@
                 data: {tmp_cost_kind:tmp_cost_kind, tmp_cost_date: tmp_cost_date,tmp_cost:tmp_cost,tmp_ps:tmp_ps,tmp_userid:tmp_userid},
                 success: function(msg){                                       
                     clean();
+                    
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                    alert("some error");
@@ -247,6 +276,7 @@
         
         function clean(){                 
          //window.location.reload();       
+         
          window.location="http://59.126.156.231:8888/Money/index.html";
         }
             
@@ -262,7 +292,7 @@
 <!-- Home -->
 <div data-role="page" id="page1">
     <div data-theme="a" data-role="header">
-        <a href="#popupLogin" data-rel="popup" data-position-to="window" data-role="button" data-inline="true"  data-theme="a" data-transition="flip" onclick="syncuser()">登入</a>
+        <a href="#popupLogin" data-rel="popup" data-position-to="window" data-role="button" data-icon="bars" data-inline="true"  data-theme="a" data-transition="flip" onclick="syncuser()">登入</a>
         <h3>
             記帳
         </h3>
@@ -275,7 +305,7 @@
                 </li>
                 <li>
                     <a href="#page2" data-transition="fade" data-theme="" data-icon="">
-                        月清單
+                        歷史清單
                     </a>
                 </li>
                 <li>
@@ -312,13 +342,14 @@
             <label for="textinput2">
                 金額
             </label>
-            <input name="" id="cost" placeholder="" value="" type="number">
+            
+            <input type="number" data-clear-btn="true" name="number-4" pattern="[0-9]*" id="cost" value="">
         </div>
         <div data-role="fieldcontain">
             <label for="textarea2">
                 備註
             </label>
-            <textarea name="" id="ps" placeholder=""></textarea>
+            <textarea name="" id="ps" placeholder="" ></textarea>
         </div>
         <a data-role="button" href="#page1" id="insert" onclick="insertData()">
             新增
@@ -361,7 +392,7 @@
 </div>
 
 
-<!--
+
 <div data-role="page" id="page2">
             <div data-theme="a" data-role="header">
         <h3>
@@ -376,7 +407,7 @@
                 </li>
                 <li>
                     <a href="#page2" data-transition="fade" data-theme="" data-icon="">
-                        月清單
+                        歷史清單
                     </a>
                 </li>
                 <li>
@@ -388,13 +419,30 @@
         </div>
     </div>
     <div data-role="content">
+        
+        <table data-role="table" id="table-column-toggle" data-mode="columntoggle" class="ui-responsive table-stroke">
+     <thead>
+       <tr>
+         <th data-priority="2">日期</th>
+         <th>分類</th>
+         <th data-priority="3">項目</th>
+         <th data-priority="1"><abbr title="花了多少">金額</abbr></th>
+         <th data-priority="5">說明</th>
+       </tr>
+     </thead>
+     
+     <tbody id="ttbody">
+        
+        
+     </tbody>
+   </table>
         </div>
             <div data-theme="a" data-role="footer" data-position="fixed">
         <h3>
         </h3>
     </div>
         </div>
--->
+
     
 </body>
 </html>
