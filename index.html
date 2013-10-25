@@ -33,14 +33,18 @@
   </title>
   
   <!--pickadate-->
+  <!--
   <link rel="stylesheet" href="plugin/pickadate/css/main.css">
   <link rel="stylesheet" href="plugin/pickadate/css/default.css" id="theme_base">
   <link rel="stylesheet" href="plugin/pickadate/css/default.date.css" id="theme_date">
   <link rel="stylesheet" href="plugin/pickadate/css/default.time.css" id="theme_time">
-  
-  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css">
+  -->
   <!-- Extra Codiqa features -->
+  <!--
   <link rel="stylesheet" href="codiqa.ext.css">     
+  -->
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css">
+  
   
   <style>
    .header-navbar {
@@ -72,7 +76,9 @@
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>  
 
+    
   <!-- Extra Codiqa features -->
+  <!--
     <script src="https://d10ajoocuyu32n.cloudfront.net/codiqa.ext.js"></script>
     <script src="plugin/pickadate/js/picker.js"></script>
     <script src="plugin/pickadate/js/picker.date.js"></script>
@@ -80,6 +86,7 @@
     <script src="plugin/pickadate/js/legacy.js"></script>
     <script src="plugin/pickadate/js/main.js"></script>
     <script src="plugin/pickadate/js/zh-tw.js"></script>
+  -->
     <script type="text/javascript">                  
         
         var checksys=0;
@@ -88,12 +95,15 @@
             
             //取得類別
              getcost_kind();
+             //今天日期
+             $('.datepicker').val(new Date().toJSON().slice(0,10));
+             /*
             $('.datepicker').pickadate({
             // Escape any 「rule」 characters with an exclamation mark (!).
             format: 'yyyy-mm-dd'                        
          })
           $('.datepicker').pickadate();          
-          
+          */
         
           $("#un").attr("disabled",true)
           $("#un").val(localStorage.userid);
@@ -138,20 +148,15 @@
            checksys++;
            if(checksys>10){
                alert("解鎖成功")
-               $("#un").attr("disabled",false)
-               
-           }
-           
-           
+               $("#un").attr("disabled",false)               
+           }                     
        }
       
         function syncuser(){                            
-                $("#un").val(localStorage.userid);                      
-                
+                $("#un").val(localStorage.userid);                                      
         }
         
-        function userid(){            
-            
+        function userid(){                        
             $.ajax({
                 url: "../rest/userid",
                 type: "GET",
@@ -216,6 +221,9 @@
                         }
 	               });
                        
+                       
+                       $("#cost_kind").selectmenu('refresh', true);  
+                       
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                    alert("some error");
@@ -257,8 +265,24 @@
                 }, 100); // delay above zero                
             }
             else{
+                if(tmp_cost_kind != "" && tmp_cost_date != ""&&tmp_cost !="" && tmp_userid !=""){
+                    
+                     insertDataajax(tmp_cost_kind,tmp_cost_date,tmp_cost,tmp_ps,tmp_userid);
+                    
+                }
+                else{
+                    
+                    alert("請檢查資料")
+                    
+                }
                 
-             $.ajax({
+             
+        }
+        
+        }
+        function insertDataajax(tmp_cost_kind,tmp_cost_date,tmp_cost,tmp_ps,tmp_userid){
+        
+        $.ajax({
                 url: "http://59.126.156.231:8888/rest/insertData",
                 type: "post",                                
                 data: {tmp_cost_kind:tmp_cost_kind, tmp_cost_date: tmp_cost_date,tmp_cost:tmp_cost,tmp_ps:tmp_ps,tmp_userid:tmp_userid},
@@ -270,7 +294,6 @@
                    alert("some error");
                 }
               });
-        }
         
         }
         
@@ -336,7 +359,7 @@
             <input name="" class="fieldset__input js__datepicker" id="textinput1" placeholder="" value="" type="text">
 			-->
 			
-            <input name="" id="cost_date" class="datepicker" placeholder="" value="" type="text">
+            <input name="" id="cost_date" class="datepicker" placeholder="" value="" type="date">
         </div>
         <div data-role="fieldcontain">
             <label for="textinput2">
