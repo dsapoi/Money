@@ -96,7 +96,10 @@
             //取得類別
              getcost_kind();
              //今天日期
-             $('.datepicker').val(new Date().toJSON().slice(0,10));
+             //$('.datepicker').val(new Date().toJSON().slice(0,10));
+             //改時區+8
+             $('.datepicker').val(new Date((new Date().getTime() + (new Date().getTimezoneOffset() * 60000) + (3600000*8))).toJSON().slice(0,10));
+             
              /*
             $('.datepicker').pickadate({
             // Escape any 「rule」 characters with an exclamation mark (!).
@@ -143,6 +146,7 @@
         //$("#ttbody").html()
     
         });
+        
         
        function ex(){
            checksys++;
